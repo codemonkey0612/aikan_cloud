@@ -24,6 +24,10 @@ export function useResident(id?: number) {
   });
 }
 
+export function useResidentOptions() {
+  return useResidents();
+}
+
 export function useCreateResident() {
   const client = useQueryClient();
 

@@ -1,3 +1,4 @@
+import { Link } from "react-router-dom";
 import { useVitals } from "../hooks/useVitals";
 import { Card } from "../components/ui/Card";
 import {
@@ -21,7 +22,17 @@ export function VitalsPage() {
         <h1 className="text-3xl font-semibold text-slate-900">バイタル記録</h1>
       </header>
 
-      <Card title="最新のバイタル">
+      <Card
+        title="最新のバイタル"
+        actions={
+          <Link
+            to="/vitals/new"
+            className="text-sm font-semibold text-brand-600 hover:underline"
+          >
+            バイタルを登録
+          </Link>
+        }
+      >
         <Table>
           <TableHeader>
             <TableRow>
