@@ -16,25 +16,25 @@ export function VisitsPage() {
     <div className="space-y-6">
       <header>
         <p className="text-sm uppercase tracking-wide text-slate-500">
-          Field activity
+          訪問業務
         </p>
-        <h1 className="text-3xl font-semibold text-slate-900">Visits</h1>
+        <h1 className="text-3xl font-semibold text-slate-900">訪問記録</h1>
       </header>
 
-      <Card title="Recent visits">
+      <Card title="直近の訪問">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell>Shift</TableHeaderCell>
-              <TableHeaderCell>Resident</TableHeaderCell>
-              <TableHeaderCell>Visited at</TableHeaderCell>
+              <TableHeaderCell>シフト</TableHeaderCell>
+              <TableHeaderCell>入居者</TableHeaderCell>
+              <TableHeaderCell>訪問日時</TableHeaderCell>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading && (
               <TableRow>
                 <TableCell colSpan={3} className="text-center text-slate-400">
-                  Loading visits...
+                  訪問記録を読み込み中...
                 </TableCell>
               </TableRow>
             )}
@@ -50,7 +50,7 @@ export function VisitsPage() {
             {!isLoading && !data?.length && (
               <TableRow>
                 <TableCell colSpan={3} className="text-center text-slate-400">
-                  No visits logged.
+                  訪問記録がまだありません。
                 </TableCell>
               </TableRow>
             )}

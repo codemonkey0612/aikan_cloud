@@ -16,25 +16,25 @@ export function FacilitiesPage() {
     <div className="space-y-6">
       <header>
         <p className="text-sm uppercase tracking-wide text-slate-500">
-          Network
+          ネットワーク
         </p>
-        <h1 className="text-3xl font-semibold text-slate-900">Facilities</h1>
+        <h1 className="text-3xl font-semibold text-slate-900">施設</h1>
       </header>
 
-      <Card title="All facilities">
+      <Card title="全施設">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell>Name</TableHeaderCell>
-              <TableHeaderCell>Address</TableHeaderCell>
-              <TableHeaderCell>Code</TableHeaderCell>
+              <TableHeaderCell>名称</TableHeaderCell>
+              <TableHeaderCell>住所</TableHeaderCell>
+              <TableHeaderCell>コード</TableHeaderCell>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading && (
               <TableRow>
                 <TableCell colSpan={3} className="text-center text-slate-400">
-                  Loading facilities...
+                  施設を読み込み中...
                 </TableCell>
               </TableRow>
             )}
@@ -48,7 +48,7 @@ export function FacilitiesPage() {
             {!isLoading && !data?.length && (
               <TableRow>
                 <TableCell colSpan={3} className="text-center text-slate-400">
-                  No facilities yet.
+                  施設がまだ登録されていません。
                 </TableCell>
               </TableRow>
             )}

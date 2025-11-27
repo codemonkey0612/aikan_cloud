@@ -16,26 +16,26 @@ export function ShiftsPage() {
     <div className="space-y-6">
       <header>
         <p className="text-sm uppercase tracking-wide text-slate-500">
-          Staffing
+          勤務体制
         </p>
-        <h1 className="text-3xl font-semibold text-slate-900">Shifts</h1>
+        <h1 className="text-3xl font-semibold text-slate-900">シフト</h1>
       </header>
 
-      <Card title="Shift schedule">
+      <Card title="シフト一覧">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell>Nurse</TableHeaderCell>
-              <TableHeaderCell>Facility</TableHeaderCell>
-              <TableHeaderCell>Date</TableHeaderCell>
-              <TableHeaderCell>Type</TableHeaderCell>
+              <TableHeaderCell>看護師</TableHeaderCell>
+              <TableHeaderCell>施設</TableHeaderCell>
+              <TableHeaderCell>日付</TableHeaderCell>
+              <TableHeaderCell>区分</TableHeaderCell>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading && (
               <TableRow>
                 <TableCell colSpan={4} className="text-center text-slate-400">
-                  Loading shifts...
+                  シフトを読み込み中...
                 </TableCell>
               </TableRow>
             )}
@@ -50,7 +50,7 @@ export function ShiftsPage() {
             {!isLoading && !data?.length && (
               <TableRow>
                 <TableCell colSpan={4} className="text-center text-slate-400">
-                  No shifts yet.
+                  シフトがまだ登録されていません。
                 </TableCell>
               </TableRow>
             )}

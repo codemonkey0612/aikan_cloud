@@ -16,26 +16,26 @@ export function VitalsPage() {
     <div className="space-y-6">
       <header>
         <p className="text-sm uppercase tracking-wide text-slate-500">
-          Health
+          健康管理
         </p>
-        <h1 className="text-3xl font-semibold text-slate-900">Vital Records</h1>
+        <h1 className="text-3xl font-semibold text-slate-900">バイタル記録</h1>
       </header>
 
-      <Card title="Latest vitals">
+      <Card title="最新のバイタル">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell>Resident</TableHeaderCell>
-              <TableHeaderCell>Blood Pressure</TableHeaderCell>
-              <TableHeaderCell>Pulse</TableHeaderCell>
-              <TableHeaderCell className="text-right">Recorded</TableHeaderCell>
+              <TableHeaderCell>入居者</TableHeaderCell>
+              <TableHeaderCell>血圧</TableHeaderCell>
+              <TableHeaderCell>脈拍</TableHeaderCell>
+              <TableHeaderCell className="text-right">記録日時</TableHeaderCell>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading && (
               <TableRow>
                 <TableCell colSpan={4} className="text-center text-slate-400">
-                  Loading vitals...
+                  バイタルを読み込み中...
                 </TableCell>
               </TableRow>
             )}
@@ -54,7 +54,7 @@ export function VitalsPage() {
             {!isLoading && !data?.length && (
               <TableRow>
                 <TableCell colSpan={4} className="text-center text-slate-400">
-                  No vitals recorded yet.
+                  バイタルがまだ登録されていません。
                 </TableCell>
               </TableRow>
             )}

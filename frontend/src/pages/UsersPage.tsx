@@ -8,24 +8,24 @@ export function UsersPage() {
   return (
     <div className="space-y-6">
       <header>
-        <p className="text-sm uppercase tracking-wide text-slate-500">Team</p>
-        <h1 className="text-3xl font-semibold text-slate-900">Users</h1>
+        <p className="text-sm uppercase tracking-wide text-slate-500">チーム</p>
+        <h1 className="text-3xl font-semibold text-slate-900">ユーザー</h1>
       </header>
 
-      <Card title="All users">
+      <Card title="全ユーザー">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell>Name</TableHeaderCell>
-              <TableHeaderCell>Email</TableHeaderCell>
-              <TableHeaderCell>Role</TableHeaderCell>
+              <TableHeaderCell>氏名</TableHeaderCell>
+              <TableHeaderCell>メールアドレス</TableHeaderCell>
+              <TableHeaderCell>権限</TableHeaderCell>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading && (
               <TableRow>
                 <TableCell colSpan={3} className="text-center text-slate-400">
-                  Loading users...
+                  ユーザーを読み込み中...
                 </TableCell>
               </TableRow>
             )}
@@ -41,7 +41,7 @@ export function UsersPage() {
             {!isLoading && !data?.length && (
               <TableRow>
                 <TableCell colSpan={3} className="text-center text-slate-400">
-                  No users yet.
+                  ユーザーがまだ登録されていません。
                 </TableCell>
               </TableRow>
             )}

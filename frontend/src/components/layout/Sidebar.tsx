@@ -13,15 +13,15 @@ import {
 import clsx from "clsx";
 
 const navItems = [
-  { label: "Overview", to: "/", icon: ChartBarIcon },
-  { label: "Users", to: "/users", icon: UsersIcon },
-  { label: "Facilities", to: "/facilities", icon: BuildingOffice2Icon },
-  { label: "Residents", to: "/residents", icon: UserGroupIcon },
-  { label: "Vitals", to: "/vitals", icon: HeartIcon },
-  { label: "Shifts", to: "/shifts", icon: ClockIcon },
-  { label: "Visits", to: "/visits", icon: ClipboardDocumentIcon },
-  { label: "Salaries", to: "/salaries", icon: CurrencyDollarIcon },
-  { label: "Notifications", to: "/notifications", icon: MegaphoneIcon },
+  { label: "ダッシュボード", to: "/", icon: ChartBarIcon },
+  { label: "ユーザー", to: "/users", icon: UsersIcon },
+  { label: "施設", to: "/facilities", icon: BuildingOffice2Icon },
+  { label: "入居者", to: "/residents", icon: UserGroupIcon },
+  { label: "バイタル", to: "/vitals", icon: HeartIcon },
+  { label: "シフト", to: "/shifts", icon: ClockIcon },
+  { label: "訪問", to: "/visits", icon: ClipboardDocumentIcon },
+  { label: "給与", to: "/salaries", icon: CurrencyDollarIcon },
+  { label: "お知らせ", to: "/notifications", icon: MegaphoneIcon },
 ];
 
 export function Sidebar() {

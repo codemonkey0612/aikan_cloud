@@ -16,34 +16,34 @@ export function NotificationsPage() {
     <div className="space-y-6">
       <header>
         <p className="text-sm uppercase tracking-wide text-slate-500">
-          Comms
+          通知
         </p>
         <h1 className="text-3xl font-semibold text-slate-900">
-          Notifications
+          お知らせ
         </h1>
       </header>
 
-      <Card title="Bulletins">
+      <Card title="掲示一覧">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell>Title</TableHeaderCell>
-              <TableHeaderCell>Target</TableHeaderCell>
-              <TableHeaderCell>Window</TableHeaderCell>
+              <TableHeaderCell>タイトル</TableHeaderCell>
+              <TableHeaderCell>対象</TableHeaderCell>
+              <TableHeaderCell>掲載期間</TableHeaderCell>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading && (
               <TableRow>
                 <TableCell colSpan={3} className="text-center text-slate-400">
-                  Loading notifications...
+                  お知らせを読み込み中...
                 </TableCell>
               </TableRow>
             )}
             {data?.map((notification) => (
               <TableRow key={notification.id}>
-                <TableCell>{notification.title ?? "Untitled"}</TableCell>
-                <TableCell>{notification.target_role ?? "All"}</TableCell>
+                <TableCell>{notification.title ?? "タイトル未設定"}</TableCell>
+                <TableCell>{notification.target_role ?? "全員"}</TableCell>
                 <TableCell>
                   {notification.publish_from ?? "--"} →{" "}
                   {notification.publish_to ?? "--"}
@@ -53,7 +53,7 @@ export function NotificationsPage() {
             {!isLoading && !data?.length && (
               <TableRow>
                 <TableCell colSpan={3} className="text-center text-slate-400">
-                  No notifications yet.
+                  お知らせがまだ登録されていません。
                 </TableCell>
               </TableRow>
             )}

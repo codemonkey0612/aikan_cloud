@@ -16,19 +16,19 @@ export function SalariesPage() {
     <div className="space-y-6">
       <header>
         <p className="text-sm uppercase tracking-wide text-slate-500">
-          Finance
+          経理
         </p>
-        <h1 className="text-3xl font-semibold text-slate-900">Salaries</h1>
+        <h1 className="text-3xl font-semibold text-slate-900">給与</h1>
       </header>
 
-      <Card title="Payment history">
+      <Card title="支給履歴">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell>Nurse</TableHeaderCell>
-              <TableHeaderCell>Month</TableHeaderCell>
+              <TableHeaderCell>看護師</TableHeaderCell>
+              <TableHeaderCell>対象月</TableHeaderCell>
               <TableHeaderCell className="text-right">
-                Amount
+                支給額
               </TableHeaderCell>
             </TableRow>
           </TableHeader>
@@ -36,7 +36,7 @@ export function SalariesPage() {
             {isLoading && (
               <TableRow>
                 <TableCell colSpan={3} className="text-center text-slate-400">
-                  Loading salaries...
+                  給与データを読み込み中...
                 </TableCell>
               </TableRow>
             )}
@@ -52,7 +52,7 @@ export function SalariesPage() {
             {!isLoading && !data?.length && (
               <TableRow>
                 <TableCell colSpan={3} className="text-center text-slate-400">
-                  No salary data.
+                  給与データがありません。
                 </TableCell>
               </TableRow>
             )}

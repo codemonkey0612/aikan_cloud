@@ -16,25 +16,25 @@ export function ResidentsPage() {
     <div className="space-y-6">
       <header>
         <p className="text-sm uppercase tracking-wide text-slate-500">
-          Care
+          ケア
         </p>
-        <h1 className="text-3xl font-semibold text-slate-900">Residents</h1>
+        <h1 className="text-3xl font-semibold text-slate-900">入居者</h1>
       </header>
 
-      <Card title="Resident roster">
+      <Card title="入居者リスト">
         <Table>
           <TableHeader>
             <TableRow>
-              <TableHeaderCell>Name</TableHeaderCell>
-              <TableHeaderCell>Facility</TableHeaderCell>
-              <TableHeaderCell>Status</TableHeaderCell>
+              <TableHeaderCell>氏名</TableHeaderCell>
+              <TableHeaderCell>施設</TableHeaderCell>
+              <TableHeaderCell>ステータス</TableHeaderCell>
             </TableRow>
           </TableHeader>
           <TableBody>
             {isLoading && (
               <TableRow>
                 <TableCell colSpan={3} className="text-center text-slate-400">
-                  Loading residents...
+                  入居者を読み込み中...
                 </TableCell>
               </TableRow>
             )}
@@ -50,7 +50,7 @@ export function ResidentsPage() {
             {!isLoading && !data?.length && (
               <TableRow>
                 <TableCell colSpan={3} className="text-center text-slate-400">
-                  No residents available.
+                  入居者がまだ登録されていません。
                 </TableCell>
               </TableRow>
             )}

@@ -20,38 +20,38 @@ export function OverviewPage() {
   return (
     <div className="space-y-6">
       <header>
-        <p className="text-sm uppercase tracking-wide text-slate-500">Dashboard</p>
+        <p className="text-sm uppercase tracking-wide text-slate-500">ダッシュボード</p>
         <h1 className="text-3xl font-semibold text-slate-900">
-          Welcome back 👋
+          おかえりなさい 👋
         </h1>
         <p className="text-slate-500">
-          Here is a quick snapshot of your facilities and care activities.
+          施設とケア状況のサマリーをご確認ください。
         </p>
       </header>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">
         <SummaryCard
-          title="Total Facilities"
+          title="施設数"
           value={facilities?.length ?? 0}
-          change="+3 this month"
+          change="今月 +3"
           icon={<BuildingOffice2Icon className="h-6 w-6" />}
         />
         <SummaryCard
-          title="Active Residents"
+          title="入居者数"
           value={residents?.length ?? 0}
-          change="+12 this week"
+          change="今週 +12"
           icon={<UserGroupIcon className="h-6 w-6" />}
         />
         <SummaryCard
-          title="Shift Coverage"
+          title="シフト充足率"
           value={`${shifts?.length ?? 0}/42`}
-          change="96% scheduled"
+          change="稼働率 96%"
           icon={<ClockIcon className="h-6 w-6" />}
         />
         <SummaryCard
-          title="Vitals Logged"
+          title="本日のバイタル"
           value={vitals?.length ?? 0}
-          change="+8 today"
+          change="本日 +8"
           icon={<HeartIcon className="h-6 w-6" />}
         />
       </section>
@@ -59,14 +59,14 @@ export function OverviewPage() {
       <section className="grid gap-6 lg:grid-cols-2">
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-slate-800">
-            Recent Shifts
+            直近のシフト
           </h2>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHeaderCell>Nurse</TableHeaderCell>
-                <TableHeaderCell>Facility</TableHeaderCell>
-                <TableHeaderCell className="text-right">Date</TableHeaderCell>
+                <TableHeaderCell>看護師</TableHeaderCell>
+                <TableHeaderCell>施設</TableHeaderCell>
+                <TableHeaderCell className="text-right">日付</TableHeaderCell>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -82,7 +82,7 @@ export function OverviewPage() {
               {!shifts?.length && (
                 <TableRow>
                   <TableCell className="text-center text-slate-400" colSpan={3}>
-                    No shifts scheduled yet.
+                    シフトはまだ登録されていません。
                   </TableCell>
                 </TableRow>
               )}
@@ -92,15 +92,15 @@ export function OverviewPage() {
 
         <div className="space-y-4">
           <h2 className="text-xl font-semibold text-slate-800">
-            Latest Vital Checks
+            最新のバイタル
           </h2>
           <Table>
             <TableHeader>
               <TableRow>
-                <TableHeaderCell>Resident</TableHeaderCell>
-                <TableHeaderCell>BP</TableHeaderCell>
+                <TableHeaderCell>入居者</TableHeaderCell>
+                <TableHeaderCell>血圧</TableHeaderCell>
                 <TableHeaderCell className="text-right">
-                  Temperature
+                  体温
                 </TableHeaderCell>
               </TableRow>
             </TableHeader>
@@ -119,7 +119,7 @@ export function OverviewPage() {
               {!vitals?.length && (
                 <TableRow>
                   <TableCell className="text-center text-slate-400" colSpan={3}>
-                    No vitals recorded yet.
+                    バイタルはまだ登録されていません。
                   </TableCell>
                 </TableRow>
               )}
