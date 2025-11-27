@@ -1,35 +1,39 @@
-import { useState } from 'react'
-import reactLogo from './assets/react.svg'
-import viteLogo from '/vite.svg'
-import './App.css'
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { BrowserRouter, Navigate, Route, Routes } from "react-router-dom";
+import { DashboardLayout } from "./components/layout/DashboardLayout";
+import { OverviewPage } from "./pages/OverviewPage";
+import { UsersPage } from "./pages/UsersPage";
+import { FacilitiesPage } from "./pages/FacilitiesPage";
+import { ResidentsPage } from "./pages/ResidentsPage";
+import { VitalsPage } from "./pages/VitalsPage";
+import { ShiftsPage } from "./pages/ShiftsPage";
+import { VisitsPage } from "./pages/VisitsPage";
+import { SalariesPage } from "./pages/SalariesPage";
+import { NotificationsPage } from "./pages/NotificationsPage";
+
+const client = new QueryClient();
 
 function App() {
-  const [count, setCount] = useState(0)
-
   return (
-    <>
-      <div>
-        <a href="https://vite.dev" target="_blank">
-          <img src={viteLogo} className="logo" alt="Vite logo" />
-        </a>
-        <a href="https://react.dev" target="_blank">
-          <img src={reactLogo} className="logo react" alt="React logo" />
-        </a>
-      </div>
-      <h1>Vite + React</h1>
-      <div className="card">
-        <button onClick={() => setCount((count) => count + 1)}>
-          count is {count}
-        </button>
-        <p>
-          Edit <code>src/App.tsx</code> and save to test HMR
-        </p>
-      </div>
-      <p className="read-the-docs">
-        Click on the Vite and React logos to learn more
-      </p>
-    </>
-  )
+    <QueryClientProvider client={client}>
+      <BrowserRouter>
+        <Routes>
+          <Route element={<DashboardLayout />}>
+            <Route index element={<OverviewPage />} />
+            <Route path="users" element={<UsersPage />} />
+            <Route path="facilities" element={<FacilitiesPage />} />
+            <Route path="residents" element={<ResidentsPage />} />
+            <Route path="vitals" element={<VitalsPage />} />
+            <Route path="shifts" element={<ShiftsPage />} />
+            <Route path="visits" element={<VisitsPage />} />
+            <Route path="salaries" element={<SalariesPage />} />
+            <Route path="notifications" element={<NotificationsPage />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Route>
+        </Routes>
+      </BrowserRouter>
+    </QueryClientProvider>
+  );
 }
 
-export default App
+export default App;
