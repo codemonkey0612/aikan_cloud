@@ -1,8 +1,10 @@
 export type Nullable<T> = T | null;
 
+export type UserRole = "ADMIN" | "NURSE" | "STAFF" | "FACILITY_MANAGER";
+
 export interface User {
   id: number;
-  role: "ADMIN" | "NURSE" | "STAFF";
+  role: UserRole;
   first_name: Nullable<string>;
   last_name: Nullable<string>;
   email: Nullable<string>;
@@ -87,7 +89,8 @@ export interface Notification {
 }
 
 export interface AuthResponse {
-  token: string;
+  accessToken: string;
+  refreshToken: string;
   user: User;
 }
 

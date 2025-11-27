@@ -1,7 +1,10 @@
 import bcrypt from "bcryptjs";
 import * as UserService from "./user.service";
+import * as RefreshTokenModel from "../models/refreshToken.model";
 import type { CreateUserInput, UserRow } from "../models/user.model";
-import { signAuthToken } from "../utils/jwt";
+import { signAccessToken, signRefreshToken, verifyRefreshToken } from "../utils/jwt";
+import type { UserRole } from "../types/roles";
+import { v4 as uuidv4 } from "uuid";
 
 const sanitizeUser = (user: UserRow | null) => {
   if (!user) return null;
@@ -38,13 +41,31 @@ export const register = async (
     throw httpError("Unable to create user", 500);
   }
 
-  const token = signAuthToken({
+  // アクセストークンを生成
+  const accessToken = signAccessToken({
     sub: String(user.id),
-    role: user.role,
+    role: user.role as UserRole,
     email: user.email,
   });
 
-  return { token, user: sanitizeUser(user) };
+  // リフレッシュトークンを生成
+  const tokenId = uuidv4();
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 30); // 30日後
+
+  await RefreshTokenModel.createRefreshToken({
+    user_id: user.id,
+    token: tokenId,
+    expires_at: expiresAt,
+  });
+
+  const refreshToken = signRefreshToken(String(user.id), tokenId);
+
+  return {
+    accessToken,
+    refreshToken,
+    user: sanitizeUser(user),
+  };
 };
 
 export const login = async (email: string, password: string) => {
@@ -64,13 +85,31 @@ export const login = async (email: string, password: string) => {
     throw httpError("Invalid credentials", 401);
   }
 
-  const token = signAuthToken({
+  // アクセストークンを生成
+  const accessToken = signAccessToken({
     sub: String(user.id),
-    role: user.role,
+    role: user.role as UserRole,
     email: user.email,
   });
 
-  return { token, user: sanitizeUser(user) };
+  // リフレッシュトークンを生成
+  const tokenId = uuidv4();
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 30); // 30日後
+
+  await RefreshTokenModel.createRefreshToken({
+    user_id: user.id,
+    token: tokenId,
+    expires_at: expiresAt,
+  });
+
+  const refreshToken = signRefreshToken(String(user.id), tokenId);
+
+  return {
+    accessToken,
+    refreshToken,
+    user: sanitizeUser(user),
+  };
 };
 
 export const getProfile = async (userId: number) => {
@@ -79,5 +118,84 @@ export const getProfile = async (userId: number) => {
     throw httpError("User not found", 404);
   }
   return sanitizeUser(user);
+};
+
+/**
+ * リフレッシュトークンを使用して新しいアクセストークンを取得（トークンローテーション）
+ */
+export const refreshAccessToken = async (refreshTokenString: string) => {
+  // リフレッシュトークンを検証
+  const payload = verifyRefreshToken(refreshTokenString);
+
+  // データベースからリフレッシュトークンを取得
+  const refreshTokenRecord = await RefreshTokenModel.getRefreshTokenByToken(
+    payload.tokenId
+  );
+
+  if (!refreshTokenRecord) {
+    throw httpError("Refresh token not found", 401);
+  }
+
+  if (refreshTokenRecord.revoked === 1) {
+    throw httpError("Refresh token has been revoked", 401);
+  }
+
+  if (new Date(refreshTokenRecord.expires_at) < new Date()) {
+    throw httpError("Refresh token has expired", 401);
+  }
+
+  // ユーザー情報を取得
+  const user = await UserService.getUserById(Number(payload.sub));
+  if (!user) {
+    throw httpError("User not found", 404);
+  }
+
+  // 古いリフレッシュトークンを削除（トークンローテーション）
+  await RefreshTokenModel.deleteRefreshToken(payload.tokenId);
+
+  // 新しいアクセストークンを生成
+  const accessToken = signAccessToken({
+    sub: String(user.id),
+    role: user.role as UserRole,
+    email: user.email,
+  });
+
+  // 新しいリフレッシュトークンを生成
+  const newTokenId = uuidv4();
+  const expiresAt = new Date();
+  expiresAt.setDate(expiresAt.getDate() + 30); // 30日後
+
+  await RefreshTokenModel.createRefreshToken({
+    user_id: user.id,
+    token: newTokenId,
+    expires_at: expiresAt,
+  });
+
+  const newRefreshToken = signRefreshToken(String(user.id), newTokenId);
+
+  return {
+    accessToken,
+    refreshToken: newRefreshToken,
+    user: sanitizeUser(user),
+  };
+};
+
+/**
+ * リフレッシュトークンを無効化（ログアウト）
+ */
+export const revokeRefreshToken = async (refreshTokenString: string) => {
+  try {
+    const payload = verifyRefreshToken(refreshTokenString);
+    await RefreshTokenModel.revokeRefreshToken(payload.tokenId);
+  } catch (error) {
+    // トークンが無効でもエラーを投げない（既に無効化されている可能性がある）
+  }
+};
+
+/**
+ * ユーザーのすべてのリフレッシュトークンを無効化（ログアウト全デバイス）
+ */
+export const revokeAllRefreshTokens = async (userId: number) => {
+  await RefreshTokenModel.revokeAllRefreshTokensByUserId(userId);
 };
 

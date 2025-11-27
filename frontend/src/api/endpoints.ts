@@ -48,6 +48,10 @@ export const AuthAPI = {
     apiClient.post<AuthResponse>("/auth/register", payload).then((res) => res.data),
   login: (payload: { email: string; password: string }) =>
     apiClient.post<AuthResponse>("/auth/login", payload).then((res) => res.data),
+  refresh: (payload: { refreshToken: string }) =>
+    apiClient.post<AuthResponse>("/auth/refresh", payload).then((res) => res.data),
+  logout: (payload: { refreshToken: string }) =>
+    apiClient.post<{ message: string }>("/auth/logout", payload).then((res) => res.data),
   me: () => apiClient.get<User>("/auth/me").then((res) => res.data),
 };
 

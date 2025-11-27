@@ -15,6 +15,7 @@ import { NotificationsPage } from "./pages/NotificationsPage";
 import { LoginPage } from "./pages/LoginPage";
 import { RegisterPage } from "./pages/RegisterPage";
 import { useAuth } from "./hooks/useAuth";
+import { RequireRole } from "./components/auth/RequireRole";
 
 const client = new QueryClient();
 
@@ -43,7 +44,14 @@ function App() {
         <Routes>
           <Route element={<RequireAuth><DashboardLayout /></RequireAuth>}>
             <Route index element={<OverviewPage />} />
-            <Route path="users" element={<UsersPage />} />
+            <Route
+              path="users"
+              element={
+                <RequireRole allowedRoles={["ADMIN"]}>
+                  <UsersPage />
+                </RequireRole>
+              }
+            />
             <Route path="facilities" element={<FacilitiesPage />} />
             <Route path="residents" element={<ResidentsPage />} />
             <Route path="residents/:id" element={<ResidentDetailPage />} />
@@ -51,7 +59,14 @@ function App() {
             <Route path="vitals/new" element={<VitalsInputPage />} />
             <Route path="shifts" element={<ShiftsPage />} />
             <Route path="visits" element={<VisitsPage />} />
-            <Route path="salaries" element={<SalariesPage />} />
+            <Route
+              path="salaries"
+              element={
+                <RequireRole allowedRoles={["ADMIN"]}>
+                  <SalariesPage />
+                </RequireRole>
+              }
+            />
             <Route path="notifications" element={<NotificationsPage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
           </Route>

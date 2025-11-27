@@ -37,6 +37,8 @@ export function Topbar() {
     switch (user.role) {
       case "ADMIN":
         return "管理者";
+      case "FACILITY_MANAGER":
+        return "施設管理者";
       case "NURSE":
         return "看護師";
       case "STAFF":

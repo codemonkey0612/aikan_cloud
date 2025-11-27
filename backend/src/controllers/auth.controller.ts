@@ -76,3 +76,40 @@ export const me = async (req: Request, res: Response) => {
   }
 };
 
+export const refresh = async (req: Request, res: Response) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (!refreshToken) {
+      return res.status(400).json({
+        message: "リフレッシュトークンが必要です",
+      });
+    }
+
+    const result = await AuthService.refreshAccessToken(refreshToken);
+    res.json(result);
+  } catch (error: any) {
+    const status = error.status || 500;
+    res.status(status).json({
+      message: error.message || "トークンのリフレッシュに失敗しました",
+    });
+  }
+};
+
+export const logout = async (req: Request, res: Response) => {
+  try {
+    const { refreshToken } = req.body;
+
+    if (refreshToken) {
+      await AuthService.revokeRefreshToken(refreshToken);
+    }
+
+    res.json({ message: "ログアウトしました" });
+  } catch (error: any) {
+    const status = error.status || 500;
+    res.status(status).json({
+      message: error.message || "ログアウトに失敗しました",
+    });
+  }
+};
+

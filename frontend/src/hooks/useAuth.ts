@@ -1,6 +1,6 @@
 import { useCallback, useEffect, useState } from "react";
 import { AuthAPI } from "../api/endpoints";
-import { getAuthToken, setAuthToken } from "../api/client";
+import { getAuthToken, setTokens, clearTokens, getRefreshToken } from "../api/client";
 import type { AuthResponse, User } from "../api/types";
 
 interface UseAuthState {
@@ -24,8 +24,6 @@ export interface UseAuthResult extends UseAuthState {
   token: string | null;
 }
 
-const TOKEN_KEY = "nursingSystem.jwt";
-
 export const useAuth = (): UseAuthResult => {
   const [state, setState] = useState<UseAuthState>({
     user: null,
@@ -35,8 +33,8 @@ export const useAuth = (): UseAuthResult => {
   const [token, setTokenState] = useState<string | null>(() => getAuthToken());
 
   const applyAuthResponse = useCallback((response: AuthResponse) => {
-    setAuthToken(response.token);
-    setTokenState(response.token);
+    setTokens(response.accessToken, response.refreshToken);
+    setTokenState(response.accessToken);
     setState({ user: response.user, loading: false, error: null });
     return response;
   }, []);
@@ -52,7 +50,7 @@ export const useAuth = (): UseAuthResult => {
       const profile = await AuthAPI.me();
       setState({ user: profile, loading: false, error: null });
     } catch (error) {
-      setAuthToken(null);
+      clearTokens();
       setTokenState(null);
       setState({ user: null, loading: false, error: null });
     }
@@ -114,11 +112,19 @@ export const useAuth = (): UseAuthResult => {
     [applyAuthResponse]
   );
 
-  const logout = useCallback(() => {
-    setAuthToken(null);
+  const logout = useCallback(async () => {
+    const refreshToken = getRefreshToken();
+    if (refreshToken) {
+      try {
+        await AuthAPI.logout({ refreshToken });
+      } catch (error) {
+        // ログアウトAPIが失敗しても、ローカルのトークンをクリア
+        console.error("Logout API error:", error);
+      }
+    }
+    clearTokens();
     setTokenState(null);
     setState({ user: null, loading: false, error: null });
-    localStorage.removeItem(TOKEN_KEY);
   }, []);
 
   return {

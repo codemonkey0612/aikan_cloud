@@ -1,15 +1,24 @@
 import { type FormEvent, useState } from "react";
 import { Navigate, Link } from "react-router-dom";
 import { useAuth } from "../hooks/useAuth";
+import type { User } from "../api/types";
 
 export function RegisterPage() {
   const { user, register, loading, error } = useAuth();
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<{
+    first_name: string;
+    last_name: string;
+    email: string;
+    phone: string;
+    role: User["role"];
+    password: string;
+    confirmPassword: string;
+  }>({
     first_name: "",
     last_name: "",
     email: "",
     phone: "",
-    role: "ADMIN" as const,
+    role: "ADMIN",
     password: "",
     confirmPassword: "",
   });
@@ -105,6 +114,23 @@ export function RegisterPage() {
               className="mt-1 w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
               placeholder="090-0000-0000"
             />
+          </label>
+
+          <label className="block text-sm font-medium text-slate-700">
+            役割
+            <select
+              value={formData.role}
+              onChange={(e) =>
+                setFormData({ ...formData, role: e.target.value as User["role"] })
+              }
+              className="mt-1 block w-full rounded-xl border border-slate-200 px-3 py-2 text-sm"
+              required
+            >
+              <option value="ADMIN">管理者</option>
+              <option value="FACILITY_MANAGER">施設管理者</option>
+              <option value="NURSE">看護師</option>
+              <option value="STAFF">スタッフ</option>
+            </select>
           </label>
 
           <label className="block text-sm font-medium text-slate-700">

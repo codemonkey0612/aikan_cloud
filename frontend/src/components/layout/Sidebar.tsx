@@ -11,20 +11,38 @@ import {
   HeartIcon,
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
+import { useAuth } from "../../hooks/useAuth";
+import { hasAnyPermission } from "../../utils/rbac";
 
-const navItems = [
+interface NavItem {
+  label: string;
+  to: string;
+  icon: React.ComponentType<{ className?: string }>;
+  permissions?: string[];
+}
+
+const allNavItems: NavItem[] = [
   { label: "ダッシュボード", to: "/", icon: ChartBarIcon },
-  { label: "ユーザー", to: "/users", icon: UsersIcon },
-  { label: "施設", to: "/facilities", icon: BuildingOffice2Icon },
-  { label: "入居者", to: "/residents", icon: UserGroupIcon },
-  { label: "バイタル", to: "/vitals", icon: HeartIcon },
-  { label: "シフト", to: "/shifts", icon: ClockIcon },
-  { label: "訪問", to: "/visits", icon: ClipboardDocumentIcon },
-  { label: "給与", to: "/salaries", icon: CurrencyDollarIcon },
-  { label: "お知らせ", to: "/notifications", icon: MegaphoneIcon },
+  { label: "ユーザー", to: "/users", icon: UsersIcon, permissions: ["users:read"] },
+  { label: "施設", to: "/facilities", icon: BuildingOffice2Icon, permissions: ["facilities:read"] },
+  { label: "入居者", to: "/residents", icon: UserGroupIcon, permissions: ["residents:read"] },
+  { label: "バイタル", to: "/vitals", icon: HeartIcon, permissions: ["vitals:read"] },
+  { label: "シフト", to: "/shifts", icon: ClockIcon, permissions: ["shifts:read"] },
+  { label: "訪問", to: "/visits", icon: ClipboardDocumentIcon, permissions: ["visits:read"] },
+  { label: "給与", to: "/salaries", icon: CurrencyDollarIcon, permissions: ["salaries:read"] },
+  { label: "お知らせ", to: "/notifications", icon: MegaphoneIcon, permissions: ["notifications:read"] },
 ];
 
 export function Sidebar() {
+  const { user } = useAuth();
+
+  // ユーザーのロールに応じて表示可能なメニューをフィルタリング
+  const navItems = allNavItems.filter((item) => {
+    if (!item.permissions) return true; // 権限指定がない場合は常に表示
+    if (!user) return false;
+    return hasAnyPermission(user.role, item.permissions);
+  });
+
   return (
     <aside className="fixed left-0 top-0 h-full w-64 border-r border-slate-200 bg-white pt-16">
       <div className="px-4 py-6">
