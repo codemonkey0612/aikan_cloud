@@ -3,11 +3,14 @@ import * as ShiftService from "../services/shift.service";
 import { calculatePagination } from "../validations/pagination.validation";
 
 export const getAllShifts = async (req: Request, res: Response) => {
+  // バリデーション済みクエリパラメータを使用（なければ元のqueryから取得）
+  const validated = req.validatedQuery || req.query;
+  
   // クエリパラメータからページネーション情報を取得
-  const page = Number(req.query.page) || 1;
-  const limit = Number(req.query.limit) || 20;
-  const sortBy = (req.query.sortBy as string) || "created_at";
-  const sortOrder = (req.query.sortOrder as "asc" | "desc") || "desc";
+  const page = validated.page ? Number(validated.page) : 1;
+  const limit = validated.limit ? Number(validated.limit) : 20;
+  const sortBy = (validated.sortBy as string) || "created_at";
+  const sortOrder = (validated.sortOrder as "asc" | "desc") || "desc";
 
   // フィルター
   const filters = {

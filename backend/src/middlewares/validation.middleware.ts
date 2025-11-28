@@ -1,6 +1,16 @@
 import { Request, Response, NextFunction } from "express";
 import { ZodSchema, ZodError } from "zod";
 
+// Express Request型を拡張
+declare global {
+  namespace Express {
+    interface Request {
+      validatedQuery?: any;
+      validatedParams?: any;
+    }
+  }
+}
+
 /**
  * Zodスキーマを使用したリクエストバリデーションミドルウェア
  * @param schema - Zodスキーマ
@@ -28,9 +38,17 @@ export const validate = (schema: ZodSchema, source: "body" | "query" | "params" 
       if (source === "body") {
         req.body = result.data;
       } else if (source === "query") {
-        req.query = result.data as any;
+        // req.queryは読み取り専用なので、validatedQueryに保存
+        req.validatedQuery = result.data;
       } else {
-        req.params = result.data as any;
+        // req.paramsも読み取り専用の可能性があるので、validatedParamsに保存
+        req.validatedParams = result.data;
+        // ただし、paramsは通常書き込み可能なので試行
+        try {
+          Object.assign(req.params, result.data);
+        } catch {
+          // 書き込みできない場合はvalidatedParamsのみ使用
+        }
       }
       next();
     } catch (error) {
@@ -68,7 +86,8 @@ export const validateQuery = (schema: ZodSchema) => {
         });
       }
 
-      req.query = result.data as any;
+      // req.queryは読み取り専用なので、validatedQueryに保存
+      req.validatedQuery = result.data;
       next();
     } catch (error) {
       if (error instanceof ZodError) {
@@ -105,7 +124,12 @@ export const validateParams = (schema: ZodSchema) => {
         });
       }
 
-      req.params = result.data as any;
+      // req.paramsに直接代入を試行、失敗した場合はvalidatedParamsに保存
+      try {
+        Object.assign(req.params, result.data);
+      } catch {
+        req.validatedParams = result.data;
+      }
       next();
     } catch (error) {
       if (error instanceof ZodError) {
