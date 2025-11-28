@@ -4,7 +4,7 @@ import { connectRedis } from "./config/redis";
 
 dotenv.config();
 
-const PORT = process.env.PORT || 3001;
+const PORT = process.env.PORT;
 
 // Redis接続を確立
 connectRedis().catch((error) => {
