@@ -1,5 +1,6 @@
 import type { User } from "../../api/types";
 import { UserCircleIcon, PencilIcon, TrashIcon } from "@heroicons/react/24/outline";
+import { useAvatar } from "../../hooks/useAvatar";
 
 interface UserCardProps {
   user: User;
@@ -8,16 +9,45 @@ interface UserCardProps {
 }
 
 export function UserCard({ user, onEdit, onDelete }: UserCardProps) {
+  const { data: avatarUrl } = useAvatar(user.id);
   const fullName = `${user.first_name || ""} ${user.last_name || ""}`.trim() || "名前未設定";
   const displayName = user.email || `ユーザー #${user.id}`;
+
+  const getUserInitials = () => {
+    if (user.first_name && user.last_name) {
+      return `${user.last_name.charAt(0)}${user.first_name.charAt(0)}`.toUpperCase();
+    }
+    if (user.first_name) return user.first_name.charAt(0).toUpperCase();
+    if (user.last_name) return user.last_name.charAt(0).toUpperCase();
+    if (user.email) return user.email.charAt(0).toUpperCase();
+    return "U";
+  };
 
   return (
     <div className="group relative rounded-lg border border-slate-200 bg-white p-4 shadow-sm transition hover:shadow-md">
       <div className="flex items-start justify-between">
         <div className="flex-1">
           <div className="flex items-center gap-3">
-            <div className="flex h-12 w-12 items-center justify-center rounded-full bg-brand-100">
-              <UserCircleIcon className="h-8 w-8 text-brand-600" />
+            <div className="relative flex h-12 w-12 items-center justify-center rounded-full bg-brand-100">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={fullName}
+                  className="h-12 w-12 rounded-full object-cover"
+                  onError={(e) => {
+                    e.currentTarget.style.display = "none";
+                    const fallback = e.currentTarget.nextElementSibling as HTMLElement;
+                    if (fallback) fallback.style.display = "flex";
+                  }}
+                />
+              ) : null}
+              <div
+                className={`flex h-12 w-12 items-center justify-center rounded-full bg-brand-100 text-brand-600 font-semibold text-sm ${
+                  avatarUrl ? "hidden" : ""
+                }`}
+              >
+                {getUserInitials()}
+              </div>
             </div>
             <div>
               <h3 className="font-semibold text-slate-900">{fullName}</h3>
