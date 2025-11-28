@@ -24,7 +24,7 @@ export function FileUpload({
 }: FileUploadProps) {
   const uploadMutation = useUploadFile();
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const [selectedFiles, setSelectedFiles] = useState<File[]>([]);
+  const [selectedFiles, setSelectedFiles] = useState<globalThis.File[]>([]);
   const [error, setError] = useState<string>("");
 
   const handleFileSelect = (e: React.ChangeEvent<HTMLInputElement>) => {

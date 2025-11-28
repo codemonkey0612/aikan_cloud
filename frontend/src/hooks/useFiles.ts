@@ -1,11 +1,11 @@
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { FilesAPI } from "../api/endpoints";
-import type { File, FileCategory } from "../api/types";
+import type { FileRecord, FileCategory } from "../api/types";
 
 const FILES_QUERY_KEY = ["files"] as const;
 
 export function useFilesByEntity(entity_type: string, entity_id: number) {
-  return useQuery<File[]>({
+  return useQuery<FileRecord[]>({
     queryKey: [...FILES_QUERY_KEY, "entity", entity_type, entity_id],
     queryFn: () => FilesAPI.getByEntity(entity_type, entity_id),
     enabled: !!entity_type && !!entity_id,
@@ -13,7 +13,7 @@ export function useFilesByEntity(entity_type: string, entity_id: number) {
 }
 
 export function useFilesByCategory(category: FileCategory) {
-  return useQuery<File[]>({
+  return useQuery<FileRecord[]>({
     queryKey: [...FILES_QUERY_KEY, "category", category],
     queryFn: () => FilesAPI.getByCategory(category),
   });
@@ -29,7 +29,7 @@ export function useUploadFile() {
       entity_type,
       entity_id,
     }: {
-      file: File;
+      file: globalThis.File;
       category: FileCategory;
       entity_type: string;
       entity_id: number;

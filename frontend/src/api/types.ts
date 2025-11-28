@@ -267,7 +267,7 @@ export interface VitalAlertTrigger {
 
 export type FileCategory = "RESIDENT_IMAGE" | "PROFILE_AVATAR" | "SHIFT_REPORT" | "SALARY_STATEMENT" | "CARE_NOTE_ATTACHMENT";
 
-export interface File {
+export interface FileRecord {
   id: number;
   file_name: string;
   original_name: string;
