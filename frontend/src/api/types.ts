@@ -113,3 +113,154 @@ export interface PaginatedResponse<T> {
   data: T[];
   pagination: PaginationInfo;
 }
+
+export type AttendanceStatus = "PENDING" | "CONFIRMED" | "REJECTED";
+export type PinPurpose = "CHECK_IN" | "CHECK_OUT" | "STATUS_UPDATE";
+
+export interface Attendance {
+  id: number;
+  shift_id: number;
+  user_id: number;
+  check_in_at: Nullable<string>;
+  check_out_at: Nullable<string>;
+  check_in_lat: Nullable<number>;
+  check_in_lng: Nullable<number>;
+  check_out_lat: Nullable<number>;
+  check_out_lng: Nullable<number>;
+  check_in_status: AttendanceStatus;
+  check_out_status: AttendanceStatus;
+  check_in_pin: Nullable<string>;
+  check_out_pin: Nullable<string>;
+  notes: Nullable<string>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CheckInRequest {
+  shift_id: number;
+  lat: number;
+  lng: number;
+  pin?: string;
+}
+
+export interface CheckOutRequest {
+  attendance_id: number;
+  lat: number;
+  lng: number;
+  pin?: string;
+}
+
+export interface CheckOutResponse extends Attendance {
+  distance_km: number | null;
+}
+
+export interface UpdateStatusRequest {
+  attendance_id: number;
+  status: AttendanceStatus;
+  type: "check_in" | "check_out";
+  pin?: string;
+}
+
+export interface GeneratePinRequest {
+  purpose: PinPurpose;
+  attendance_id?: number;
+}
+
+export interface GeneratePinResponse {
+  pin: string;
+  expires_in: number;
+}
+
+export interface Diagnosis {
+  id: number;
+  resident_id: number;
+  diagnosis_code: Nullable<string>;
+  diagnosis_name: string;
+  diagnosis_date: Nullable<string>;
+  severity: Nullable<string>;
+  status: string;
+  notes: Nullable<string>;
+  diagnosed_by: Nullable<number>;
+  created_at: string;
+  updated_at: string;
+}
+
+export type CarePlanStatus = "ACTIVE" | "COMPLETED" | "CANCELLED";
+export type CarePlanPriority = "LOW" | "MEDIUM" | "HIGH" | "URGENT";
+
+export interface CarePlan {
+  id: number;
+  resident_id: number;
+  title: string;
+  description: Nullable<string>;
+  start_date: string;
+  end_date: Nullable<string>;
+  status: CarePlanStatus;
+  priority: CarePlanPriority;
+  created_by: Nullable<number>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface CarePlanItem {
+  id: number;
+  care_plan_id: number;
+  task_description: string;
+  frequency: Nullable<string>;
+  assigned_to: Nullable<number>;
+  completed: boolean;
+  completed_at: Nullable<string>;
+  completed_by: Nullable<number>;
+  due_date: Nullable<string>;
+  created_at: string;
+  updated_at: string;
+}
+
+export type MedicationStatus = "ACTIVE" | "DISCONTINUED" | "COMPLETED";
+
+export interface MedicationNote {
+  id: number;
+  resident_id: number;
+  medication_name: string;
+  dosage: Nullable<string>;
+  frequency: Nullable<string>;
+  route: Nullable<string>;
+  start_date: Nullable<string>;
+  end_date: Nullable<string>;
+  prescribed_by: Nullable<string>;
+  notes: Nullable<string>;
+  status: MedicationStatus;
+  created_by: Nullable<number>;
+  created_at: string;
+  updated_at: string;
+}
+
+export type VitalAlertType = "SYSTOLIC_BP" | "DIASTOLIC_BP" | "PULSE" | "TEMPERATURE" | "SPO2";
+export type AlertSeverity = "LOW" | "MEDIUM" | "HIGH" | "CRITICAL";
+
+export interface VitalAlert {
+  id: number;
+  resident_id: number;
+  alert_type: VitalAlertType;
+  min_value: Nullable<number>;
+  max_value: Nullable<number>;
+  severity: AlertSeverity;
+  active: boolean;
+  created_by: Nullable<number>;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface VitalAlertTrigger {
+  id: number;
+  vital_record_id: number;
+  vital_alert_id: number;
+  resident_id: number;
+  alert_type: VitalAlertType;
+  measured_value: number;
+  triggered_at: string;
+  acknowledged: boolean;
+  acknowledged_by: Nullable<number>;
+  acknowledged_at: Nullable<string>;
+  notes: Nullable<string>;
+}

@@ -4,6 +4,7 @@ import {
   HeartIcon,
   BuildingOffice2Icon,
   CalendarIcon,
+  ClipboardDocumentListIcon,
 } from "@heroicons/react/24/outline";
 import { useResident } from "../hooks/useResidents";
 import { SummaryCard } from "../components/dashboard/SummaryCard";
@@ -64,13 +65,22 @@ export function ResidentDetailPage() {
             施設ID: #{resident?.facility_id ?? "未設定"}
           </p>
         </div>
-        <Link
-          to={`/facilities`}
-          className="inline-flex items-center gap-2 rounded-xl border border-brand-200 bg-white px-4 py-2 text-sm font-medium text-brand-600 hover:bg-brand-50"
-        >
-          <BuildingOffice2Icon className="h-5 w-5" />
-          施設一覧へ
-        </Link>
+        <div className="flex gap-2">
+          <Link
+            to={`/residents/${residentId}/care-plan`}
+            className="inline-flex items-center gap-2 rounded-xl border border-brand-200 bg-white px-4 py-2 text-sm font-medium text-brand-600 hover:bg-brand-50"
+          >
+            <ClipboardDocumentListIcon className="h-5 w-5" />
+            ケアプラン
+          </Link>
+          <Link
+            to={`/facilities`}
+            className="inline-flex items-center gap-2 rounded-xl border border-brand-200 bg-white px-4 py-2 text-sm font-medium text-brand-600 hover:bg-brand-50"
+          >
+            <BuildingOffice2Icon className="h-5 w-5" />
+            施設一覧へ
+          </Link>
+        </div>
       </div>
 
       <section className="grid gap-4 md:grid-cols-2 xl:grid-cols-4">

@@ -1,15 +1,28 @@
 import { apiClient } from "./client";
 import type { ApiIdentifier } from "./client";
 import type {
+  Attendance,
   AuthResponse,
+  CarePlan,
+  CarePlanItem,
+  CheckInRequest,
+  CheckOutRequest,
+  CheckOutResponse,
+  Diagnosis,
   Facility,
+  GeneratePinRequest,
+  GeneratePinResponse,
+  MedicationNote,
   Notification,
   PaginatedResponse,
   Resident,
   Salary,
   Shift,
+  UpdateStatusRequest,
   User,
   Visit,
+  VitalAlert,
+  VitalAlertTrigger,
   VitalRecord,
 } from "./types";
 
@@ -148,5 +161,68 @@ export const VisitsAPI = {
       .get<PaginatedResponse<Visit>>(`/visits${query ? `?${query}` : ""}`)
       .then((res) => res.data);
   },
+};
+
+export const AttendanceAPI = {
+  checkIn: (payload: CheckInRequest) =>
+    apiClient.post<Attendance>("/attendance/check-in", payload).then((res) => res.data),
+  checkOut: (payload: CheckOutRequest) =>
+    apiClient.post<CheckOutResponse>("/attendance/check-out", payload).then((res) => res.data),
+  updateStatus: (payload: UpdateStatusRequest) =>
+    apiClient.put<Attendance>("/attendance/status", payload).then((res) => res.data),
+  generatePin: (payload: GeneratePinRequest) =>
+    apiClient.post<GeneratePinResponse>("/attendance/generate-pin", payload).then((res) => res.data),
+  getMyAttendance: (limit?: number) => {
+    const query = limit ? `?limit=${limit}` : "";
+    return apiClient.get<Attendance[]>(`/attendance/my${query}`).then((res) => res.data);
+  },
+  getByShift: (shift_id: number) =>
+    apiClient.get<Attendance[]>(`/attendance/shift/${shift_id}`).then((res) => res.data),
+  getById: (id: number) =>
+    apiClient.get<Attendance>(`/attendance/${id}`).then((res) => res.data),
+};
+
+export const DiagnosesAPI = createCrudApi<Diagnosis>("/diagnoses");
+export const DiagnosesAPIExtended = {
+  ...DiagnosesAPI,
+  getByResident: (resident_id: number) =>
+    apiClient.get<Diagnosis[]>(`/diagnoses/resident/${resident_id}`).then((res) => res.data),
+};
+
+export const CarePlansAPI = {
+  ...createCrudApi<CarePlan>("/care-plans"),
+  getByResident: (resident_id: number) =>
+    apiClient.get<CarePlan[]>(`/care-plans/resident/${resident_id}`).then((res) => res.data),
+  getItems: (care_plan_id: number) =>
+    apiClient.get<CarePlanItem[]>(`/care-plans/${care_plan_id}/items`).then((res) => res.data),
+  createItem: (payload: Partial<CarePlanItem>) =>
+    apiClient.post<CarePlanItem>("/care-plans/items", payload).then((res) => res.data),
+  updateItem: (id: number, payload: Partial<CarePlanItem>) =>
+    apiClient.put<CarePlanItem>(`/care-plans/items/${id}`, payload).then((res) => res.data),
+  deleteItem: (id: number) =>
+    apiClient.delete(`/care-plans/items/${id}`).then(() => undefined),
+};
+
+export const MedicationNotesAPI = {
+  ...createCrudApi<MedicationNote>("/medication-notes"),
+  getByResident: (resident_id: number) =>
+    apiClient.get<MedicationNote[]>(`/medication-notes/resident/${resident_id}`).then((res) => res.data),
+  getActiveByResident: (resident_id: number) =>
+    apiClient.get<MedicationNote[]>(`/medication-notes/resident/${resident_id}/active`).then((res) => res.data),
+};
+
+export const VitalAlertsAPI = {
+  ...createCrudApi<VitalAlert>("/vital-alerts"),
+  getByResident: (resident_id: number) =>
+    apiClient.get<VitalAlert[]>(`/vital-alerts/resident/${resident_id}`).then((res) => res.data),
+  getTriggers: (params?: { resident_id?: number; acknowledged?: boolean }) => {
+    const queryParams = new URLSearchParams();
+    if (params?.resident_id) queryParams.append("resident_id", String(params.resident_id));
+    if (params?.acknowledged !== undefined) queryParams.append("acknowledged", String(params.acknowledged));
+    const query = queryParams.toString();
+    return apiClient.get<VitalAlertTrigger[]>(`/vital-alerts/triggers${query ? `?${query}` : ""}`).then((res) => res.data);
+  },
+  acknowledgeTrigger: (id: number, notes?: string) =>
+    apiClient.post<VitalAlertTrigger>(`/vital-alerts/triggers/${id}/acknowledge`, { notes }).then((res) => res.data),
 };
 
