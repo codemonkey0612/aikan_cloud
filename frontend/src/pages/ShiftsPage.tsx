@@ -1,42 +1,36 @@
 import { useMemo, useState } from "react";
+import { Link } from "react-router-dom";
 import { useShifts } from "../hooks/useShifts";
 import { useUsers } from "../hooks/useUsers";
 import { useFacilities } from "../hooks/useFacilities";
 import type { Shift } from "../api/types";
 import { Card } from "../components/ui/Card";
 import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHeader,
-  TableHeaderCell,
-  TableRow,
-} from "../components/ui/Table";
-import {
   CalendarDaysIcon,
   ChevronLeftIcon,
   ChevronRightIcon,
 } from "@heroicons/react/24/outline";
-import { Pagination } from "../components/ui/Pagination";
-import { FileUpload } from "../components/files/FileUpload";
-import { FileList } from "../components/files/FileList";
-import { useAuth } from "../hooks/useAuth";
 
 const WEEK_DAYS = ["日", "月", "火", "水", "木", "金", "土"];
 
 const formatKey = (date: Date) => date.toISOString().slice(0, 10);
 
 export function ShiftsPage() {
-  const { user } = useAuth();
-  const [page, setPage] = useState(1);
-  const limit = 20;
-  const { data, isLoading } = useShifts({ page, limit });
   const { data: users } = useUsers();
   const { data: facilities } = useFacilities();
   const [currentMonth, setCurrentMonth] = useState(() => {
     const now = new Date();
     now.setDate(1);
     return now;
+  });
+
+  // 月の開始日と終了日を計算
+  const monthStart = new Date(currentMonth.getFullYear(), currentMonth.getMonth(), 1);
+  const monthEnd = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0);
+  
+  const { data, isLoading } = useShifts({
+    date_from: monthStart.toISOString().slice(0, 10),
+    date_to: monthEnd.toISOString().slice(0, 10),
   });
 
   // 看護師IDから看護師名へのマッピング
@@ -192,13 +186,14 @@ export function ShiftsPage() {
                         ? shift.facility_name || facilityMap.get(shift.facility_id) || shift.facility_id
                         : "未設定";
                       return (
-                        <div
+                        <Link
                           key={shift.id}
-                          className="rounded-lg bg-slate-100 px-2 py-1 text-xs text-slate-600"
+                          to={`/shifts/${shift.id}`}
+                          className="block rounded-lg bg-slate-100 px-2 py-1 text-xs text-slate-600 transition hover:bg-slate-200"
                           title={`${nurseName} - ${facilityName}`}
                         >
                           {nurseName} / {facilityName}
-                        </div>
+                        </Link>
                       );
                     })}
                     {dayShifts.length > 3 && (
@@ -216,86 +211,6 @@ export function ShiftsPage() {
           </div>
         </div>
       </Card>
-
-      <Card title="シフト一覧">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHeaderCell>看護師</TableHeaderCell>
-              <TableHeaderCell>施設</TableHeaderCell>
-              <TableHeaderCell>日付</TableHeaderCell>
-              <TableHeaderCell>区分</TableHeaderCell>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {isLoading && (
-              <TableRow>
-                <TableCell colSpan={4} className="text-center text-slate-400">
-                  シフトを読み込み中...
-                </TableCell>
-              </TableRow>
-            )}
-            {data?.data && data.data.length > 0 && data.data.map((shift) => {
-              const nurseName = shift.nurse_id
-                ? nurseMap.get(shift.nurse_id) || shift.nurse_id
-                : "未設定";
-              const facilityName = shift.facility_id
-                ? shift.facility_name || facilityMap.get(shift.facility_id) || shift.facility_id
-                : "未設定";
-              const shiftDate = shift.start_datetime
-                ? new Date(shift.start_datetime).toLocaleDateString("ja-JP")
-                : "未設定";
-              
-              return (
-                <TableRow key={shift.id}>
-                  <TableCell>{nurseName}</TableCell>
-                  <TableCell>{facilityName}</TableCell>
-                  <TableCell>{shiftDate}</TableCell>
-                  <TableCell>{shift.shift_period ?? "N/A"}</TableCell>
-                </TableRow>
-              );
-            })}
-            {!isLoading && (!data?.data || data.data.length === 0) && (
-              <TableRow>
-                <TableCell colSpan={4} className="text-center text-slate-400">
-                  シフトがまだ登録されていません。
-                </TableCell>
-              </TableRow>
-            )}
-          </TableBody>
-        </Table>
-        {data?.pagination && data.pagination.totalPages > 1 && (
-          <div className="mt-4 border-t border-slate-200 pt-4">
-            <Pagination
-              page={data.pagination.page}
-              totalPages={data.pagination.totalPages}
-              onPageChange={setPage}
-            />
-            <p className="mt-2 text-center text-sm text-slate-500">
-              {data.pagination.total}件中 {((page - 1) * limit + 1)}-{Math.min(page * limit, data.pagination.total)}件を表示
-            </p>
-          </div>
-        )}
-      </Card>
-
-      {/* シフトPDFレポート */}
-      {user && (
-        <Card title="シフトPDFレポート">
-          <div className="space-y-4">
-            <FileUpload
-              category="SHIFT_REPORT"
-              entity_type="user"
-              entity_id={user.id}
-              accept=".pdf"
-            />
-            <FileList
-              category="SHIFT_REPORT"
-              entity_type="user"
-              entity_id={user.id}
-            />
-          </div>
-        </Card>
-      )}
     </div>
   );
 }
