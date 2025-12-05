@@ -1,0 +1,890 @@
+openapi: 3.0.3
+info:
+  title: Nursing System API
+  version: 1.0.0
+  description: |
+    REST API for managing facilities, staff, residents, vitals, visits, shifts,
+    salaries, notifications and authentication.
+servers:
+  - url: http://localhost:3001
+    description: Local development
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  parameters:
+    IdParam:
+      name: id
+      in: path
+      required: true
+      schema:
+        type: integer
+        minimum: 1
+  schemas:
+    ApiError:
+      type: object
+      properties:
+        message:
+          type: string
+    AuthToken:
+      type: object
+      properties:
+        token:
+          type: string
+        user:
+          $ref: "#/components/schemas/User"
+    User:
+      type: object
+      properties:
+        id:
+          type: integer
+        role:
+          type: string
+          enum: [ADMIN, NURSE, STAFF]
+        first_name:
+          type: string
+          nullable: true
+        last_name:
+          type: string
+          nullable: true
+        email:
+          type: string
+          nullable: true
+        phone:
+          type: string
+          nullable: true
+        active:
+          type: integer
+        created_at:
+          type: string
+          format: date-time
+      required: [id, role, active, created_at]
+    Facility:
+      type: object
+      properties:
+        id:
+          type: integer
+        corporation_id:
+          type: integer
+        name:
+          type: string
+        code:
+          type: string
+          nullable: true
+        postal_code:
+          type: string
+          nullable: true
+        address:
+          type: string
+          nullable: true
+        lat:
+          type: number
+          format: float
+          nullable: true
+        lng:
+          type: number
+          format: float
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+      required: [id, corporation_id, name, created_at]
+    Resident:
+      type: object
+      properties:
+        id:
+          type: integer
+        facility_id:
+          type: integer
+        first_name:
+          type: string
+          nullable: true
+        last_name:
+          type: string
+          nullable: true
+        gender:
+          type: string
+          enum: [MALE, FEMALE, OTHER]
+          nullable: true
+        birth_date:
+          type: string
+          format: date
+          nullable: true
+        status:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+      required: [id, facility_id, created_at]
+    VitalRecord:
+      type: object
+      properties:
+        id:
+          type: integer
+        resident_id:
+          type: integer
+        measured_at:
+          type: string
+          format: date-time
+          nullable: true
+        systolic_bp:
+          type: integer
+          nullable: true
+        diastolic_bp:
+          type: integer
+          nullable: true
+        pulse:
+          type: integer
+          nullable: true
+        temperature:
+          type: number
+          format: float
+          nullable: true
+        spo2:
+          type: integer
+          nullable: true
+        note:
+          type: string
+          nullable: true
+        created_by:
+          type: integer
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+      required: [id, resident_id, created_at]
+    Shift:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        facility_id:
+          type: integer
+        date:
+          type: string
+          format: date
+        start_time:
+          type: string
+          format: time
+          nullable: true
+        end_time:
+          type: string
+          format: time
+          nullable: true
+        shift_type:
+          type: string
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+      required: [id, user_id, facility_id, date, created_at]
+    Visit:
+      type: object
+      properties:
+        id:
+          type: integer
+        shift_id:
+          type: integer
+        resident_id:
+          type: integer
+          nullable: true
+        visited_at:
+          type: string
+          format: date-time
+        note:
+          type: string
+          nullable: true
+      required: [id, shift_id, visited_at]
+    Salary:
+      type: object
+      properties:
+        id:
+          type: integer
+        user_id:
+          type: integer
+        year_month:
+          type: string
+          pattern: "^\\d{4}-\\d{2}$"
+        amount:
+          type: integer
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+      required: [id, user_id, year_month, created_at]
+    Notification:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+          nullable: true
+        body:
+          type: string
+          nullable: true
+        target_role:
+          type: string
+          nullable: true
+        publish_from:
+          type: string
+          format: date-time
+          nullable: true
+        publish_to:
+          type: string
+          format: date-time
+          nullable: true
+        created_by:
+          type: integer
+          nullable: true
+        created_at:
+          type: string
+          format: date-time
+      required: [id, created_at]
+paths:
+  /api/health:
+    get:
+      summary: Health check
+      responses:
+        "200":
+          description: API is running
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  message:
+                    type: string
+  /api/auth/register:
+    post:
+      summary: Register a user and issue JWT
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password, role]
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                phone:
+                  type: string
+                role:
+                  type: string
+                  enum: [ADMIN, NURSE, STAFF]
+                password:
+                  type: string
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthToken"
+        "400":
+          description: Invalid data
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/auth/login:
+    post:
+      summary: Authenticate existing user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              required: [email, password]
+              properties:
+                email:
+                  type: string
+                password:
+                  type: string
+      responses:
+        "200":
+          description: Authenticated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/AuthToken"
+        "401":
+          description: Invalid credentials
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/auth/me:
+    get:
+      summary: Get current user profile
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Current user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+        "401":
+          description: Missing/invalid token
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/ApiError"
+  /api/users:
+    get:
+      summary: List users
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: User list
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/User"
+    post:
+      summary: Create user
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "200":
+          description: Created user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+  /api/users/{id}:
+    parameters:
+      - $ref: "#/components/parameters/IdParam"
+    get:
+      summary: Get user
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: User
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    put:
+      summary: Update user
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/User"
+      responses:
+        "200":
+          description: Updated user
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/User"
+    delete:
+      summary: Delete user
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Deleted
+  /api/facilities:
+    get:
+      summary: List facilities
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Facilities
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Facility"
+    post:
+      summary: Create facility
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Facility"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Facility"
+  /api/facilities/{id}:
+    parameters:
+      - $ref: "#/components/parameters/IdParam"
+    get:
+      summary: Get facility
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Facility
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Facility"
+    put:
+      summary: Update facility
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Facility"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Facility"
+    delete:
+      summary: Delete facility
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Deleted
+  /api/residents:
+    get:
+      summary: List residents
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Residents
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Resident"
+    post:
+      summary: Create resident
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Resident"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resident"
+  /api/residents/{id}:
+    parameters:
+      - $ref: "#/components/parameters/IdParam"
+    get:
+      summary: Get resident
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Resident
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resident"
+    put:
+      summary: Update resident
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Resident"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Resident"
+    delete:
+      summary: Delete resident
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Deleted
+  /api/vitals:
+    get:
+      summary: List vital records
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Vitals
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/VitalRecord"
+    post:
+      summary: Create vital record
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VitalRecord"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VitalRecord"
+  /api/vitals/{id}:
+    parameters:
+      - $ref: "#/components/parameters/IdParam"
+    get:
+      summary: Get vital record
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Vital record
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VitalRecord"
+    put:
+      summary: Update vital record
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/VitalRecord"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/VitalRecord"
+    delete:
+      summary: Delete vital record
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Deleted
+  /api/shifts:
+    get:
+      summary: List shifts
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Shifts
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Shift"
+    post:
+      summary: Create shift
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Shift"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Shift"
+  /api/shifts/{id}:
+    parameters:
+      - $ref: "#/components/parameters/IdParam"
+    get:
+      summary: Get shift
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Shift
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Shift"
+    put:
+      summary: Update shift
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Shift"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Shift"
+    delete:
+      summary: Delete shift
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Deleted
+  /api/visits:
+    get:
+      summary: List visits
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Visits
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Visit"
+    post:
+      summary: Create visit
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Visit"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Visit"
+  /api/visits/{id}:
+    parameters:
+      - $ref: "#/components/parameters/IdParam"
+    get:
+      summary: Get visit
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Visit
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Visit"
+    put:
+      summary: Update visit
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Visit"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Visit"
+    delete:
+      summary: Delete visit
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Deleted
+  /api/salaries:
+    get:
+      summary: List salaries
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Salaries
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Salary"
+    post:
+      summary: Create salary
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Salary"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Salary"
+  /api/salaries/{id}:
+    parameters:
+      - $ref: "#/components/parameters/IdParam"
+    get:
+      summary: Get salary entry
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Salary
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Salary"
+    put:
+      summary: Update salary
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Salary"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Salary"
+    delete:
+      summary: Delete salary
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Deleted
+  /api/notifications:
+    get:
+      summary: List notifications
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Notifications
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: "#/components/schemas/Notification"
+    post:
+      summary: Create notification
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Notification"
+      responses:
+        "201":
+          description: Created
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+  /api/notifications/{id}:
+    parameters:
+      - $ref: "#/components/parameters/IdParam"
+    get:
+      summary: Get notification
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Notification
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+    put:
+      summary: Update notification
+      security:
+        - BearerAuth: []
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: "#/components/schemas/Notification"
+      responses:
+        "200":
+          description: Updated
+          content:
+            application/json:
+              schema:
+                $ref: "#/components/schemas/Notification"
+    delete:
+      summary: Delete notification
+      security:
+        - BearerAuth: []
+      responses:
+        "200":
+          description: Deleted
+
