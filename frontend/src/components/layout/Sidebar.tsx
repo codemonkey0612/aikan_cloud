@@ -14,28 +14,28 @@ import {
 } from "@heroicons/react/24/outline";
 import clsx from "clsx";
 import { useAuth } from "../../hooks/useAuth";
-import { hasAnyPermission } from "../../utils/rbac";
+import type { UserRole } from "../../api/types";
 import { UserMenu } from "./UserMenu";
 
 interface NavItem {
   label: string;
   to: string;
   icon: React.ComponentType<{ className?: string }>;
-  permissions?: string[];
+  allowedRoles?: UserRole[];
 }
 
 const allNavItems: NavItem[] = [
-  { label: "ダッシュボード", to: "/", icon: ChartBarIcon },
-  { label: "ユーザー", to: "/users", icon: UsersIcon, permissions: ["users:read"] },
-  { label: "施設", to: "/facilities", icon: BuildingOffice2Icon, permissions: ["facilities:read"] },
-  { label: "法人", to: "/corporations", icon: BuildingOffice2Icon, permissions: ["corporations:read"] },
-  { label: "入居者", to: "/residents", icon: UserGroupIcon, permissions: ["residents:read"] },
-  { label: "バイタル", to: "/vitals", icon: HeartIcon, permissions: ["vitals:read"] },
-  { label: "シフト", to: "/shifts", icon: ClockIcon, permissions: ["shifts:read"] },
-  { label: "希望シフト提出", to: "/nurse-availability", icon: CalendarIcon, permissions: ["shifts:write"] },
-  { label: "施設シフト依頼", to: "/facility-shift-requests", icon: BuildingOffice2Icon, permissions: ["shifts:write"] },
-  { label: "給与", to: "/salaries", icon: CurrencyDollarIcon, permissions: ["salaries:read"] },
-  { label: "お知らせ", to: "/notifications", icon: MegaphoneIcon, permissions: ["notifications:read"] },
+  { label: "ダッシュボード", to: "/", icon: ChartBarIcon, allowedRoles: ["admin", "nurse", "facility_manager"] },
+  { label: "ユーザー", to: "/users", icon: UsersIcon, allowedRoles: ["admin"] },
+  { label: "施設", to: "/facilities", icon: BuildingOffice2Icon, allowedRoles: ["admin"] },
+  { label: "法人", to: "/corporations", icon: BuildingOffice2Icon, allowedRoles: ["admin"] },
+  { label: "入居者", to: "/residents", icon: UserGroupIcon, allowedRoles: ["admin"] },
+  { label: "バイタル", to: "/vitals", icon: HeartIcon, allowedRoles: ["admin"] },
+  { label: "シフト", to: "/shifts", icon: ClockIcon, allowedRoles: ["admin", "nurse", "facility_manager"] },
+  { label: "希望シフト提出", to: "/nurse-availability", icon: CalendarIcon, allowedRoles: ["nurse"] },
+  { label: "施設シフト依頼", to: "/facility-shift-requests", icon: BuildingOffice2Icon, allowedRoles: ["admin", "facility_manager"] },
+  { label: "給与", to: "/salaries", icon: CurrencyDollarIcon, allowedRoles: ["admin"] },
+  { label: "お知らせ", to: "/notifications", icon: MegaphoneIcon, allowedRoles: ["admin", "nurse", "facility_manager"] },
 ];
 
 export function Sidebar() {
@@ -43,9 +43,9 @@ export function Sidebar() {
 
   // ユーザーのロールに応じて表示可能なメニューをフィルタリング
   const navItems = allNavItems.filter((item) => {
-    if (!item.permissions) return true; // 権限指定がない場合は常に表示
+    if (!item.allowedRoles) return true; // ロール指定がない場合は常に表示
     if (!user) return false;
-    return hasAnyPermission(user.role, item.permissions);
+    return item.allowedRoles.includes(user.role);
   });
 
   return (
