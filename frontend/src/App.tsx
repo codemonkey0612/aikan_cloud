@@ -48,7 +48,9 @@ function App() {
       <BrowserRouter>
         <Routes>
           <Route element={<RequireAuth><DashboardLayout /></RequireAuth>}>
+            {/* Dashboard - All roles can access (content will be role-specific) */}
             <Route index element={<OverviewPage />} />
+            {/* Admin-only pages */}
             <Route
               path="users"
               element={
@@ -57,28 +59,59 @@ function App() {
                 </RequireRole>
               }
             />
-            <Route path="facilities" element={<FacilitiesPage />} />
-            <Route path="corporations" element={<CorporationsPage />} />
-            <Route path="residents" element={<ResidentsPage />} />
-            <Route path="residents/:id" element={<ResidentDetailPage />} />
-            <Route path="residents/:id/care-plan" element={<CarePlanPage />} />
-            <Route path="vitals" element={<VitalsPage />} />
-            <Route path="vitals/new" element={<VitalsInputPage />} />
-            <Route path="shifts" element={<ShiftsPage />} />
-            <Route path="shifts/:id" element={<ShiftDetailPage />} />
             <Route
-              path="nurse-availability"
+              path="facilities"
               element={
-                <RequireRole allowedRoles={["nurse"]}>
-                  <NurseAvailabilityPage />
+                <RequireRole allowedRoles={["admin"]}>
+                  <FacilitiesPage />
                 </RequireRole>
               }
             />
             <Route
-              path="facility-shift-requests"
+              path="corporations"
               element={
-                <RequireRole allowedRoles={["admin", "facility_manager"]}>
-                  <FacilityShiftRequestPage />
+                <RequireRole allowedRoles={["admin"]}>
+                  <CorporationsPage />
+                </RequireRole>
+              }
+            />
+            <Route
+              path="residents"
+              element={
+                <RequireRole allowedRoles={["admin"]}>
+                  <ResidentsPage />
+                </RequireRole>
+              }
+            />
+            <Route
+              path="residents/:id"
+              element={
+                <RequireRole allowedRoles={["admin"]}>
+                  <ResidentDetailPage />
+                </RequireRole>
+              }
+            />
+            <Route
+              path="residents/:id/care-plan"
+              element={
+                <RequireRole allowedRoles={["admin"]}>
+                  <CarePlanPage />
+                </RequireRole>
+              }
+            />
+            <Route
+              path="vitals"
+              element={
+                <RequireRole allowedRoles={["admin"]}>
+                  <VitalsPage />
+                </RequireRole>
+              }
+            />
+            <Route
+              path="vitals/new"
+              element={
+                <RequireRole allowedRoles={["admin"]}>
+                  <VitalsInputPage />
                 </RequireRole>
               }
             />
@@ -90,6 +123,42 @@ function App() {
                 </RequireRole>
               }
             />
+            {/* Shifts - Admin, Nurse, and Facility Manager */}
+            <Route
+              path="shifts"
+              element={
+                <RequireRole allowedRoles={["admin", "nurse", "facility_manager"]}>
+                  <ShiftsPage />
+                </RequireRole>
+              }
+            />
+            <Route
+              path="shifts/:id"
+              element={
+                <RequireRole allowedRoles={["admin", "nurse", "facility_manager"]}>
+                  <ShiftDetailPage />
+                </RequireRole>
+              }
+            />
+            {/* Nurse-only pages */}
+            <Route
+              path="nurse-availability"
+              element={
+                <RequireRole allowedRoles={["nurse"]}>
+                  <NurseAvailabilityPage />
+                </RequireRole>
+              }
+            />
+            {/* Facility Manager and Admin pages */}
+            <Route
+              path="facility-shift-requests"
+              element={
+                <RequireRole allowedRoles={["admin", "facility_manager"]}>
+                  <FacilityShiftRequestPage />
+                </RequireRole>
+              }
+            />
+            {/* All roles can access */}
             <Route path="notifications" element={<NotificationsPage />} />
             <Route path="profile" element={<ProfilePage />} />
             <Route path="*" element={<Navigate to="/" replace />} />
